@@ -21,6 +21,8 @@
           <th scope="col">Long URL</th>
           <th scope="col">Edit</th>
           <th scope="col">Delete</th>
+          <th scope="col">Created at</th>
+          <th scope="col">Visits</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +31,11 @@
             <td><%= url %></td>
             <td><%= urls[url].longURL %></td>
             <td>
-              <a href="/urls/<%= url %>" class="btn btn-outline-primary">Edit</a>
+              <form method="GET" action="/urls/<%= url %>">
+                <button type="submit" class="btn btn-outline-primary">
+                  Edit
+                </button>
+              </form>
             </td>
             <td>
               <form method="POST" action="/urls/<%= url %>/delete">
@@ -38,11 +44,17 @@
                 </button>
               </form>
             </td>
+            <td><%= urls[url].createdAt %></td>
+            <td><%= urls[url].visits %></td>
           </tr>
         <% } %>
       </tbody>
     </table>
-  </main>
+    <form method="GET" action="/urls/new">
+      <button type="submit" class="btn btn-outline-primary">
+        Create a New Short Link
+      </button>
+    </form>  </main>
   <% }else { %>
     <div class="alert alert-warning" role="alert">
       Please <a href="/login">login</a> or <a href="/register" >register</a> to access the urls!

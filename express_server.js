@@ -37,6 +37,13 @@ const urlsForUser = function(id) {
 };
 
 //RENDER PAGES
+app.get('/', (req, res) => {
+  if(!req.session.user_id){
+    res.redirect('/login')
+  }
+  res.redirect('/urls')
+})
+
 app.get('/urls', (req, res) => {
   let templateVars = undefined;
   if (req.session.user_id) {
@@ -75,7 +82,9 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: req.session.user_id
+    userID: req.session.user_id,
+    createdAt: new Date().toDateString(),
+    visits: 0
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -100,6 +109,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //REDIRECT TO LONG URL
 app.get("/u/:shortURL", (req, res) => {
+  urlDatabase[req.params.shortURL].visits ++
   res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
 });
 
