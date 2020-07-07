@@ -25,6 +25,7 @@ const users = {
   }
 }
 
+//HELPER FUNCTIONS
 function urlsForUser(id){
   const tempDatabase = {}
   const userUrls =  Object.keys(urlDatabase).filter(elm => urlDatabase[elm].userID === id)
@@ -39,6 +40,8 @@ function generateRandomString(num){
   return randomStr;
 }
 
+
+//RENDER PAGES
 app.get('/urls', (req, res) => {
   let templateVars = undefined
   if(req.cookies['user_id']){
@@ -73,6 +76,7 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render("urls_show", templateVars)
 })
 
+//CREATE URL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6)
   urlDatabase[shortURL] = { 
@@ -82,6 +86,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+//DELETE URL
 app.post('/urls/:shortURL/delete', (req, res) => {
   const userUrls = urlsForUser(req.cookies['user_id'])
   if(userUrls[req.params.shortURL]){
@@ -90,6 +95,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls')
 })
 
+//UPDATE URL
 app.post('/urls/:shortURL', (req, res) => {
   const userUrls = urlsForUser(req.cookies['user_id'])
   if(userUrls[req.params.shortURL]){
@@ -98,10 +104,14 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls')
 })
 
+//REDIRECT TO LONG URL
 app.get("/u/:shortURL", (req, res) => {  
   res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
 });
 
+
+//Registration Routers
+//LOGIN
 app.post('/login', (req, res) => {
   const userEmails = Object.keys(users).map((elm) => users[elm].email)
   if(!userEmails.includes(req.body.email)){
@@ -116,11 +126,20 @@ app.post('/login', (req, res) => {
   res.cookie('user_id', users[myUser].id)
   res.redirect('/urls')
 })
+
+app.get('/login', (req, res) => {
+  let templateVars = { user: users[req.cookies['user_id']]}
+  res.render('login_page', templateVars)
+})
+
+//LOGOUT
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id')
   res.redirect('/urls')
 })
 
+
+//REGISTER
 app.get('/register', (req, res) => {
   let templateVars = { user: users[req.cookies['user_id']]}
   res.render('registration_page', templateVars)
@@ -144,11 +163,6 @@ app.post('/register', (req, res) => {
   users[newUser.id] = newUser
   res.cookie('user_id', newUser.id)
   res.redirect('/urls')
-})
-
-app.get('/login', (req, res) => {
-  let templateVars = { user: users[req.cookies['user_id']]}
-  res.render('login_page', templateVars)
 })
 
 app.listen(PORT, () => {
