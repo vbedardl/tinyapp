@@ -1,6 +1,7 @@
 const { request } = require("express");
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
+const bcrypt = require('bcrypt')
 
 const express = require('express')
 const app = express()
@@ -48,6 +49,7 @@ app.get('/urls', (req, res) => {
   }else{
     templateVars = { urls: undefined, user: undefined}
   }
+  console.log(users)
   res.render("urls_index", templateVars)
 })
 
@@ -107,7 +109,7 @@ app.post('/login', (req, res) => {
     return
   }
   const myUser = Object.keys(users).filter((elm) => users[elm].email === req.body.email)
-  if(users[myUser].password !== req.body.password){
+  if(!bcrypt.compareSync(req.body.password, users[myUser].password)){
     res.status(403).send('Password not recognize')
     return
   }
@@ -137,7 +139,7 @@ app.post('/register', (req, res) => {
   const newUser = {
     id: generateRandomString(4),
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   }
   users[newUser.id] = newUser
   res.cookie('user_id', newUser.id)
