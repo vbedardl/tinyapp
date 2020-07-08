@@ -18,7 +18,7 @@
         <% if(user.paid) {%>
         <div class="container">
           <div class="row justify-content-center">
-          <input class="form-control col-md-3" type="text" value="http://localhost:3001/u/<%= shortURL %>" id="pureLink" readonly>
+          <input class="form-control col-md-3" type="text" value="<%= fullPath %>/u/<%= shortURL %>" id="pureLink" readonly>
           <button class="btn btn-outline-primary" id="copyClip">Copy</button>
           </div>  
         </div> 
@@ -26,7 +26,7 @@
         <p>Created at: <%= userUrls[shortURL].createdAt %></p>
         <p>Visited: <%= userUrls[shortURL].visits.mobile + userUrls[shortURL].visits.desktop %> time(s) | <%= Object.keys(userUrls[shortURL].uniqueVisitors).length %> Unique Visitor(s)</p>
         <form method="POST" action="/urls/<%= shortURL %>">
-          <input type="text" id='newLongUrl' name='newLongUrl'>
+          <input type="text" id='newLongUrl' placeholder="<%= userUrls[shortURL].longURL %>" name='newLongUrl'>
           <button type="submit" class="btn btn-primary">
             Submit
           </button>
@@ -62,12 +62,14 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <script>
     let copyClip = document.getElementById('copyClip')
+    if(copyClip){
     copyClip.addEventListener('click', function(e){
       e.preventDefault()
       let copyText = document.getElementById('pureLink')
       copyText.select()
       document.execCommand('copy')
     })
+  }
   </script>
 </body>
 </html>

@@ -46,14 +46,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let templateVars = undefined;
+  let templateVars = { urls: undefined, user: undefined, msg: undefined};
   if (req.session.user_id) {
-    templateVars = {
-      urls: urlsForUser(req.session.user_id),
-      user: users[req.session.user_id]
-    };
-  } else {
-    templateVars = { urls: undefined, user: undefined};
+    templateVars.urls = urlsForUser(req.session.user_id);
+    templateVars.user = users[req.session.user_id];
+  }
+  if (req.session.msg) {
+    templateVars.msg = req.session.msg;
+    req.session.msg = null;
   }
   res.render("urls_index", templateVars);
 });
@@ -68,14 +68,20 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const userUrls = urlsForUser(req.session.user_id);
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[req.session.user_id],
-    userUrls: userUrls
-  };
-  res.render("urls_show", templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+    const userUrls = urlsForUser(req.session.user_id);
+    let templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      user: users[req.session.user_id],
+      userUrls: userUrls,
+      fullPath: req.protocol + '://' + req.get('host'),
+    };
+    res.render("urls_show", templateVars);
+  } else {
+    req.session.msg = 'This tiny URL does not exist';
+    res.redirect('/');
+  }
 });
 
 app.get('/analytics', (req, res) => {
@@ -137,30 +143,35 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   const userUrls = urlsForUser(req.session.user_id);
   if (userUrls[req.params.shortURL]) {
-    urlDatabase[req.params.shortURL].longURL  = req.body.newLongUrl;
+    urlDatabase[req.params.shortURL].longURL = req.body.newLongUrl;
   }
   res.redirect('/urls');
 });
 
 //REDIRECT TO LONG URL
 app.get("/u/:shortURL", (req, res) => {
-  if (req.get('user-agent').includes('Mobi')) {
-    urlDatabase[req.params.shortURL].visits.mobile ++;
-  } else {
-    urlDatabase[req.params.shortURL].visits.desktop ++;
-  }
-  if (!urlDatabase[req.params.shortURL].referal[req.headers.referer]) {
-    urlDatabase[req.params.shortURL].referal[req.headers.referer] = 0;
-  }
-  if (!req.session.visitor_id) {
-    req.session.visitor_id = generateRandomString(4);
-    urlDatabase[req.params.shortURL].uniqueVisitors[req.session.visitor_id] = 0;
-  }
-  urlDatabase[req.params.shortURL].referal[req.headers.referer] ++;
-  urlDatabase[req.params.shortURL].uniqueVisitors[req.session.visitor_id] ++;
 
-  console.log(urlDatabase);
-  res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
+  if (urlDatabase[req.params.shortURL]) {
+    if (req.get('user-agent').includes('Mobi')) {
+      urlDatabase[req.params.shortURL].visits.mobile ++;
+    } else {
+      urlDatabase[req.params.shortURL].visits.desktop ++;
+    }
+    if (!urlDatabase[req.params.shortURL].referal[req.headers.referer]) {
+      urlDatabase[req.params.shortURL].referal[req.headers.referer] = 0;
+    }
+    if (!req.session.visitor_id) {
+      req.session.visitor_id = generateRandomString(4);
+      urlDatabase[req.params.shortURL].uniqueVisitors[req.session.visitor_id] = 0;
+    }
+    urlDatabase[req.params.shortURL].referal[req.headers.referer] ++;
+    urlDatabase[req.params.shortURL].uniqueVisitors[req.session.visitor_id] ++;
+
+    res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
+  } else {
+    req.session.msg = 'tinyURL does not exist';
+    res.redirect('/');
+  }
 });
 
 
@@ -168,20 +179,15 @@ app.get("/u/:shortURL", (req, res) => {
 //LOGIN
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email, users);
-  let templateVars = {};
+  let templateVars = {user: undefined, message: undefined};
   if (!user) {
     templateVars.message = 'Sorry user doesnt exist';
-    templateVars.user = undefined;
     res.render('login_page', templateVars);
-    // res.status(403).send('Sorry user doesnt exist');
     return;
   }
   if (!bcrypt.compareSync(req.body.password, user.password)) {
     templateVars.message = 'Password doesnt match';
-    templateVars.user = undefined;
-
     res.render('login_page', templateVars);
-    // res.status(403).send('Password not recognize');
     return;
   }
   req.session.user_id = user.id;
@@ -207,19 +213,15 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  let templateVars = {};
+  let templateVars = {user: undefined};
   if (!req.body.email || !req.body.password) {
     templateVars.message = 'Missing something';
-    templateVars.user = undefined;
-    // res.status(400).send('Missing something');
     res.render('registration_page', templateVars);
     return;
   }
   const user = getUserByEmail(req.body.email, users);
   if (user) {
     templateVars.message = 'User already exists';
-    templateVars.user = undefined;
-    // res.status(400).send('User exists already');
     res.render('registration_page', templateVars);
     return;
   }
