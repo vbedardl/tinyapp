@@ -1,3 +1,5 @@
+const { urlDatabase} = require('./database')
+
 const getUserByEmail = function(email, database) {
   const user = Object.keys(database).filter(user => database[user].email === email);
   return database[user];
@@ -12,7 +14,15 @@ const generateRandomString = function(num) {
   return randomStr;
 };
 
+const urlsForUser = function(id) {
+  const tempDatabase = {};
+  const userUrls =  Object.keys(urlDatabase).filter(elm => urlDatabase[elm].userID === id);
+  userUrls.forEach((url) => tempDatabase[url] = urlDatabase[url]);
+  return tempDatabase;
+};
+
 module.exports = {
   getUserByEmail,
-  generateRandomString
+  generateRandomString,
+  urlsForUser
 };
