@@ -22,6 +22,11 @@
         Login
       </button>
     </div>  
+    <% if(message) {%>
+      <div class="alert alert-warning" role="alert">
+        <%= message %>
+      </div>
+    <%}%>
   </form>
 
    <!-- Bootstrap JS -->

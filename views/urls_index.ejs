@@ -14,7 +14,7 @@
   <% if(user) { %>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
-    <table class="table">
+    <table class="table table-hover">
       <thead>
         <tr>
           <th scope="col">Short URL</th>
@@ -23,6 +23,7 @@
           <th scope="col">Delete</th>
           <th scope="col">Created at</th>
           <th scope="col">Visits</th>
+          <th scope="col">Unique Visitors</th>
         </tr>
       </thead>
       <tbody>
@@ -46,6 +47,7 @@
             </td>
             <td><%= urls[url].createdAt %></td>
             <td><%= urls[url].visits.mobile + urls[url].visits.desktop %></td>
+            <td><%= Object.keys(urls[url].uniqueVisitors).length %></td>
           </tr>
         <% } %>
       </tbody>

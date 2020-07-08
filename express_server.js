@@ -118,7 +118,8 @@ app.post("/urls", (req, res) => {
       mobile:0,
       desktop:0
     },
-    referal:{}
+    referal:{},
+    uniqueVisitors: {}
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -151,7 +152,14 @@ app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL].referal[req.headers.referer]) {
     urlDatabase[req.params.shortURL].referal[req.headers.referer] = 0;
   }
+  if (!req.session.visitor_id) {
+    req.session.visitor_id = generateRandomString(4);
+    urlDatabase[req.params.shortURL].uniqueVisitors[req.session.visitor_id] = 0;
+  }
   urlDatabase[req.params.shortURL].referal[req.headers.referer] ++;
+  urlDatabase[req.params.shortURL].uniqueVisitors[req.session.visitor_id] ++;
+
+  console.log(urlDatabase);
   res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
 });
 
@@ -160,12 +168,20 @@ app.get("/u/:shortURL", (req, res) => {
 //LOGIN
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email, users);
+  let templateVars = {};
   if (!user) {
-    res.status(403).send('Sorry user doesnt exist');
+    templateVars.message = 'Sorry user doesnt exist';
+    templateVars.user = undefined;
+    res.render('login_page', templateVars);
+    // res.status(403).send('Sorry user doesnt exist');
     return;
   }
   if (!bcrypt.compareSync(req.body.password, user.password)) {
-    res.status(403).send('Password not recognize');
+    templateVars.message = 'Password doesnt match';
+    templateVars.user = undefined;
+
+    res.render('login_page', templateVars);
+    // res.status(403).send('Password not recognize');
     return;
   }
   req.session.user_id = user.id;
@@ -173,7 +189,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  let templateVars = { user: users[req.session.user_id]};
+  let templateVars = { user: users[req.session.user_id], message: undefined};
   res.render('login_page', templateVars);
 });
 
@@ -186,18 +202,25 @@ app.post('/logout', (req, res) => {
 
 //REGISTER
 app.get('/register', (req, res) => {
-  let templateVars = { user: users[req.session.user_id]};
+  let templateVars = { user: users[req.session.user_id], message: undefined};
   res.render('registration_page', templateVars);
 });
 
 app.post('/register', (req, res) => {
+  let templateVars = {};
   if (!req.body.email || !req.body.password) {
-    res.status(400).send('Missing something');
+    templateVars.message = 'Missing something';
+    templateVars.user = undefined;
+    // res.status(400).send('Missing something');
+    res.render('registration_page', templateVars);
     return;
   }
   const user = getUserByEmail(req.body.email, users);
   if (user) {
-    res.status(400).send('User exists already');
+    templateVars.message = 'User already exists';
+    templateVars.user = undefined;
+    // res.status(400).send('User exists already');
+    res.render('registration_page', templateVars);
     return;
   }
   let paid = (req.body.paid === 'on' ? true : false);

@@ -18,13 +18,13 @@
         <% if(user.paid) {%>
         <div class="container">
           <div class="row justify-content-center">
-          <input class="form-control col-md-3" type="text" value="localhost:3001/u/<%= shortURL %>" id="pureLink" readonly>
+          <input class="form-control col-md-3" type="text" value="http://localhost:3001/u/<%= shortURL %>" id="pureLink" readonly>
           <button class="btn btn-outline-primary" id="copyClip">Copy</button>
           </div>  
         </div> 
         <% } %>
         <p>Created at: <%= userUrls[shortURL].createdAt %></p>
-        <p>Visited: <%= userUrls[shortURL].visits.mobile + userUrls[shortURL].visits.desktop %> time(s)</p>
+        <p>Visited: <%= userUrls[shortURL].visits.mobile + userUrls[shortURL].visits.desktop %> time(s) | <%= Object.keys(userUrls[shortURL].uniqueVisitors).length %> Unique Visitor(s)</p>
         <form method="POST" action="/urls/<%= shortURL %>">
           <input type="text" id='newLongUrl' name='newLongUrl'>
           <button type="submit" class="btn btn-primary">
