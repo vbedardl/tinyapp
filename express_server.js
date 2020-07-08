@@ -78,6 +78,30 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get('/analytics', (req, res) => {
+  let userUrls = urlsForUser(req.session.user_id);
+  let mobileCount = Object.keys(userUrls).map((url) => userUrls[url].visits.mobile).reduce((a, b) => a + b);
+  let desktopCount = Object.keys(userUrls).map((url) => userUrls[url].visits.desktop).reduce((a, b) => a + b);
+  let templateVars = {
+    user: users[req.session.user_id],
+    userUrls: urlsForUser(req.session.user_id),
+    mobileCount,
+    desktopCount,
+    url: undefined
+  };
+  res.render("analytics", templateVars);
+});
+
+app.post('/analytics', (req, res) => {
+  let templateVars = {
+    mobileCount: urlDatabase[req.body.shortURL].visits.mobile,
+    desktopCount: urlDatabase[req.body.shortURL].visits.desktop,
+    user: users[req.session.user_id],
+    url: urlDatabase[req.body.shortURL]
+  };
+  res.render('analytics', templateVars);
+});
+
 //CREATE URL
 app.post("/urls", (req, res) => {
   let shortURL = undefined;
@@ -128,7 +152,6 @@ app.get("/u/:shortURL", (req, res) => {
     urlDatabase[req.params.shortURL].referal[req.headers.referer] = 0;
   }
   urlDatabase[req.params.shortURL].referal[req.headers.referer] ++;
-  console.log(urlDatabase[req.params.shortURL]);
   res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
 });
 

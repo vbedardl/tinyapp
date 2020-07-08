@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>URL - TinyApp Example</title>
+</head>
+
+<body>
+  <%- include('partials/_header') %>
+  <% if(user){ %>
+    <% if(user.paid) {%>
+      <div class="row justify-content-center">
+      <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <% if(!url){ %>
+          <form method="POST" action="/analytics">
+            <div class="form-group">
+              <label for="exampleFormControlSelect1">Choose your tinyURL</label>
+              <select class="form-control" name="shortURL" required id="exampleFormControlSelect1">
+                <% for(let url in userUrls){%>
+                <option name='<%= url %>' value='<%= url %>'><%= userUrls[url].longURL %></option>
+                <%}%>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              Submit
+            </button>
+          </form>
+          <%}else{%>
+            <table class="table table-dark">
+              <thead>
+                <tr>
+                  <th scope="col">Referral Website</th>
+                  <th scope="col">Traffic/Clicks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for(let referal in url.referal) {%>
+                <tr>
+                  <td><%= referal %></td>
+                  <td><%= url.referal[referal]%></td>
+                </tr>
+                <%}%>
+              </tbody>
+            </table>
+          <%}%>
+        </div>
+      <div class="card-footer text-muted"></div>
+    </div>
+    <div class="card text-center">
+      <div class="card-header"></div>
+      <div class="card-body">
+        <canvas id="devices" width="600" height="400"></canvas>
+      </div>
+    <div class="card-footer text-muted"></div>
+  </div>
+    </div>
+    <% } else {%>
+      <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            You need a paid account to access those features! Go back to your <a href="/urls">urls</a>
+          </div>
+        </div>
+      <div class="card-footer text-muted"></div>
+    </div>
+      <% } %>
+    <%} else {%>
+      <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            Please <a href="/login">login</a> or <a href="/register" >register</a> to access the urls!
+          </div>
+        </div>
+      <div class="card-footer text-muted"></div>
+      </div>
+    <%}%>  
+    <div id="mobile" data-count='<%= mobileCount %>'></div>
+    <div id="desktop" data-count='<%= desktopCount %>'></div>
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <script>
+    var mc = document.getElementById('mobile').dataset.count;
+    var dc = document.getElementById('desktop').dataset.count;
+    console.log('mobile:', mc, 'desktop:', dc)
+
+    var devicesCanvas = document.getElementById("devices");
+
+    Chart.defaults.global.defaultFontFamily = "Lato";
+    Chart.defaults.global.defaultFontSize = 18;
+
+    var devicesData = {
+        labels: ["Mobile", "Desktop"],
+        datasets: [
+            {
+                data: [mc, dc],
+                backgroundColor: ["#FF6384", "#63FF84", "#84FF63"]
+            }]
+    };
+
+    var pieChart = new Chart(devicesCanvas, {
+      type: 'pie',
+      data: devicesData
+    });
+  </script>
+</body>
+</html>

@@ -15,12 +15,14 @@
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        <% if(user.paid) {%>
         <div class="container">
           <div class="row justify-content-center">
           <input class="form-control col-md-3" type="text" value="localhost:3001/u/<%= shortURL %>" id="pureLink" readonly>
           <button class="btn btn-outline-primary" id="copyClip">Copy</button>
           </div>  
         </div> 
+        <% } %>
         <p>Created at: <%= userUrls[shortURL].createdAt %></p>
         <p>Visited: <%= userUrls[shortURL].visits.mobile + userUrls[shortURL].visits.desktop %> time(s)</p>
         <form method="POST" action="/urls/<%= shortURL %>">
@@ -32,7 +34,7 @@
       </div>
     <div class="card-footer text-muted"></div>
   </div>
-    <%} else {%>
+    <% } else { %>
       <div class="card text-center">
         <div class="card-header"></div>
         <div class="card-body">
@@ -42,7 +44,7 @@
         </div>
       <div class="card-footer text-muted"></div>
     </div>
-    <%}%>
+    <% } %>
   <% }else{ %>
     <div class="card text-center">
       <div class="card-header"></div>
@@ -52,6 +54,7 @@
         </div>
       </div>
     <div class="card-footer text-muted"></div>
+    </div>
   <% } %>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
