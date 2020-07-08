@@ -25,7 +25,8 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "purple-monkey-dinosaur",
+    paid: false
   }
 };
 
@@ -38,11 +39,11 @@ const urlsForUser = function(id) {
 
 //RENDER PAGES
 app.get('/', (req, res) => {
-  if(!req.session.user_id){
-    res.redirect('/login')
+  if (!req.session.user_id) {
+    res.redirect('/login');
   }
-  res.redirect('/urls')
-})
+  res.redirect('/urls');
+});
 
 app.get('/urls', (req, res) => {
   let templateVars = undefined;
@@ -79,12 +80,21 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //CREATE URL
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString(6);
+  let shortURL = undefined;
+  if (req.body.customURL) {
+    shortURL = req.body.customURL;
+  } else {
+    shortURL = generateRandomString(6);
+  }
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: req.session.user_id,
     createdAt: new Date().toDateString(),
-    visits: 0
+    visits: {
+      mobile:0,
+      desktop:0
+    },
+    referal:{}
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -109,7 +119,16 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //REDIRECT TO LONG URL
 app.get("/u/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL].visits ++
+  if (req.get('user-agent').includes('Mobi')) {
+    urlDatabase[req.params.shortURL].visits.mobile ++;
+  } else {
+    urlDatabase[req.params.shortURL].visits.desktop ++;
+  }
+  if (!urlDatabase[req.params.shortURL].referal[req.headers.referer]) {
+    urlDatabase[req.params.shortURL].referal[req.headers.referer] = 0;
+  }
+  urlDatabase[req.params.shortURL].referal[req.headers.referer] ++;
+  console.log(urlDatabase[req.params.shortURL]);
   res.redirect(`${urlDatabase[req.params.shortURL].longURL}`);
 });
 
@@ -158,11 +177,12 @@ app.post('/register', (req, res) => {
     res.status(400).send('User exists already');
     return;
   }
-
+  let paid = (req.body.paid === 'on' ? true : false);
   const newUser = {
     id: generateRandomString(4),
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10)
+    password: bcrypt.hashSync(req.body.password, 10),
+    paid: paid
   };
   users[newUser.id] = newUser;
   req.session.user_id = newUser.id;
