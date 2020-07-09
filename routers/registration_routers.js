@@ -7,18 +7,18 @@ const UserObj = require('../Schema/User');
 const TemplateVars = require('../Schema/TemplateVars');
 
 
-/* LOGIN */
+//LOGIN -> Validate the given email, if match, validate the hashed password, if match log in the user and associate a cookie
 router.post('/login', (req, res) => {
   const { password, email } = req.body;
   const user = getUserByEmail(email, users);
   const templateVars = new TemplateVars();
   if (!user) {
-    templateVars.hasMsg('Sorry user does not exist');
+    templateVars.hasMessage('Sorry user does not exist');
     res.render('login_page', templateVars);
     return;
   }
   if (!bcrypt.compareSync(password, user.password)) {
-    templateVars.hasMsg('Password doesnt match');
+    templateVars.hasMessage('Password doesnt match');
     res.render('login_page', templateVars);
     return;
   }
@@ -26,24 +26,24 @@ router.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
-//LOGOUT
+//LOGOUT -> Erase any cookies that were created and disconnect the user
 router.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
-//REGISTER
+//REGISTER -> Create a userid, hash a password and save the information in the database
 router.post('/register', (req, res) => {
   const templateVars = new TemplateVars();
   if (!req.body.email || !req.body.password) {
-    templateVars.hasMsg('Missing something');
+    templateVars.hasMessage('Missing something');
     res.render('registration_page', templateVars);
     return;
   }
 
   const existingUser = getUserByEmail(req.body.email, users);
   if (existingUser) {
-    templateVars.hasMsg('User already exists');
+    templateVars.hasMessage('User already exists');
     res.render('registration_page', templateVars);
     return;
   }

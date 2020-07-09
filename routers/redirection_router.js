@@ -3,7 +3,7 @@ const router = express.Router();
 const { urlDatabase } = require('../database');
 const { generateRandomString } = require('../helpers');
 
-//REDIRECT TO LONG URL
+//REDIRECT TO LONG URL -> Create the redirection of the short URL to the long URL and collect data. Also create a special cookie to count unique visit
 router.get("/u/:shortURL", (req, res) => {
   const currentURL = urlDatabase[req.params.shortURL];
   if (currentURL) {
