@@ -15,10 +15,10 @@
         <div class="card-header"></div>
         <div class="card-body">
           <% if(!url){ %>
-          <form method="POST" action="/analytics">
+          <form method="GET" action="/analytics/url">
             <div class="form-group">
               <label for="exampleFormControlSelect1">Choose your tinyURL</label>
-              <select class="form-control" name="shortURL" required id="exampleFormControlSelect1">
+              <select class="form-control" name="short" required id="exampleFormControlSelect1">
                 <% for(let url in userUrls){%>
                 <option name='<%= url %>' value='<%= url %>'><%= userUrls[url].longURL %></option>
                 <%}%>

@@ -6,8 +6,32 @@ const { getUserByEmail } = require('../helpers');
 const UserObj = require('../Schema/User');
 const TemplateVars = require('../Schema/TemplateVars');
 
+//GET HOMEPAGE
+router.get('/', (req, res) => {
+  !req.session.user_id ?
+    res.redirect('/login') :
+    res.redirect('/urls');
+});
 
-//LOGIN -> Validate the given email, if match, validate the hashed password, if match log in the user and associate a cookie
+//DISPLAY LOGIN FORM
+router.get('/login', (req, res) => {
+  const templateVars = new TemplateVars();
+  templateVars.hasUserID(req.session.user_id);
+  if (req.session.msg) {
+    templateVars.hasMessage(req.session.msg);
+    req.session.msg = null;
+  }
+  res.render('login_page', templateVars);
+});
+
+//DISPLAY REGISTRATION FORM
+router.get('/register', (req, res) => {
+  const templateVars = new TemplateVars();
+  templateVars.hasUserID(req.session.user_id);
+  res.render('registration_page', templateVars);
+});
+
+//LOGIN A USER
 router.post('/login', (req, res) => {
   const { password, email } = req.body;
   const user = getUserByEmail(email, users);
@@ -26,13 +50,13 @@ router.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
-//LOGOUT -> Erase any cookies that were created and disconnect the user
+//LOGOUT A USER
 router.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
-//REGISTER -> Create a userid, hash a password and save the information in the database
+//CREATE A NEW USER
 router.post('/register', (req, res) => {
   const templateVars = new TemplateVars();
   if (!req.body.email || !req.body.password) {

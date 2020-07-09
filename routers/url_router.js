@@ -1,11 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const { urlDatabase } = require('../database');
+const { users, urlDatabase } = require('../database');
 const { generateRandomString, urlsForUser } = require('../helpers');
 const UrlObject = require('../Schema/Url');
+const TemplateVars = require('../Schema/TemplateVars');
 
-//CREATE URL
-router.post("/urls", (req, res) => {
+//GET LIST OF URLS
+router.get('/', (req, res) => {
+  const templateVars = new TemplateVars();
+  if (req.session.user_id) {
+    templateVars.hasUserID(req.session.user_id);
+  }
+  if (req.session.msg) {
+    templateVars.hasMessage(req.session.msg);
+    req.session.msg = null;
+  }
+  res.render("urls_index", templateVars);
+});
+
+//DISPLAY THE FORM TO CREATE A NEW URL
+router.get("/new", (req, res) => {
+  !req.session.user_id ?
+    res.redirect('/login') :
+    res.render("urls_new", { user: users[req.session.user_id]});
+});
+
+//CREATE A NEW URL
+router.post("/", (req, res) => {
   if (req.session.user_id) {
     let shortURL = undefined;
     req.body.customURL ?
@@ -19,8 +40,23 @@ router.post("/urls", (req, res) => {
   }
 });
 
-//DELETE URL
-router.delete('/urls/:shortURL', (req, res) => {
+//GET A SPECIFIC URL
+router.get('/:shortURL', (req, res) => {
+  const templateVars = new TemplateVars();
+  const { shortURL } = req.params;
+  if (urlDatabase[shortURL]) {
+    templateVars.hasUserID(req.session.user_id);
+    templateVars.hasShortURL(shortURL);
+    templateVars.fullPath = req.protocol + '://' + req.get('host');
+    res.render("urls_show", templateVars);
+  } else {
+    req.session.msg = 'This tiny URL does not exist';
+    res.redirect('/');
+  }
+});
+
+//DELETE SPECIFIC URL
+router.delete('/:shortURL', (req, res) => {
   if (req.session.user_id) {
     const userUrls = urlsForUser(req.session.user_id);
     userUrls[req.params.shortURL] ?
@@ -30,11 +66,10 @@ router.delete('/urls/:shortURL', (req, res) => {
     req.session.msg = `You can't delete a url if you are not logged in`;
   }
   res.redirect('/urls');
-  
 });
 
-//UPDATE URL
-router.put('/urls/:shortURL', (req, res) => {
+//UPDATE SPECIFIC URL
+router.put('/:shortURL', (req, res) => {
   if (req.session.user_id) {
     const userUrls = urlsForUser(req.session.user_id);
     userUrls[req.params.shortURL] ?
