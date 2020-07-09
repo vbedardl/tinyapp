@@ -25,7 +25,7 @@
         <% } %>
         <p>Created at: <%= userUrls[shortURL].createdAt %></p>
         <p>Visited: <%= userUrls[shortURL].visits.mobile + userUrls[shortURL].visits.desktop %> time(s) | <%= Object.keys(userUrls[shortURL].uniqueVisitors).length %> Unique Visitor(s)</p>
-        <form method="POST" action="/urls/<%= shortURL %>">
+        <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
           <input type="text" id='newLongUrl' value="<%= userUrls[shortURL].longURL %>" name='newLongUrl'>
           <button type="submit" class="btn btn-primary">
             Submit

@@ -7,9 +7,11 @@ const renderingRouter = require('./routers/rendering_router');
 const redirectionRouter = require('./routers/redirection_router');
 
 const express = require('express');
+let methodOverride = require('method-override');
 const app = express();
 const PORT = 3001;
 
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name:'session',

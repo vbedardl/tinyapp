@@ -19,6 +19,8 @@ router.get("/u/:shortURL", (req, res) => {
     }
     if (!req.session.visitor_id) {
       req.session.visitor_id = generateRandomString(4);
+    }
+    if (!uniqueVisitors[req.session.visitor_id]) {
       uniqueVisitors[req.session.visitor_id] = 0;
     }
     referal[referer] ++;

@@ -20,7 +20,7 @@ router.post("/urls", (req, res) => {
 });
 
 //DELETE URL
-router.post('/urls/:shortURL/delete', (req, res) => {
+router.delete('/urls/:shortURL', (req, res) => {
   if (req.session.user_id) {
     const userUrls = urlsForUser(req.session.user_id);
     userUrls[req.params.shortURL] ?
@@ -34,7 +34,7 @@ router.post('/urls/:shortURL/delete', (req, res) => {
 });
 
 //UPDATE URL
-router.post('/urls/:shortURL', (req, res) => {
+router.put('/urls/:shortURL', (req, res) => {
   if (req.session.user_id) {
     const userUrls = urlsForUser(req.session.user_id);
     userUrls[req.params.shortURL] ?
