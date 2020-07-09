@@ -1,20 +1,24 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 const bcrypt = require('bcrypt');
-const { users } = require('../database')
-const { getUserByEmail, generateRandomString } = require('../helpers');
+const { users } = require('../database');
+const { getUserByEmail } = require('../helpers');
+const UserObj = require('../Schema/User');
+const TemplateVars = require('../Schema/TemplateVars');
+
 
 /* LOGIN */
 router.post('/login', (req, res) => {
-  const user = getUserByEmail(req.body.email, users);
-  let templateVars = {user: undefined, message: undefined};
+  const { password, email } = req.body;
+  const user = getUserByEmail(email, users);
+  const templateVars = new TemplateVars();
   if (!user) {
-    templateVars.message = 'Sorry user doesnt exist';
+    templateVars.hasMsg('Sorry user does not exist');
     res.render('login_page', templateVars);
     return;
   }
-  if (!bcrypt.compareSync(req.body.password, user.password)) {
-    templateVars.message = 'Password doesnt match';
+  if (!bcrypt.compareSync(password, user.password)) {
+    templateVars.hasMsg('Password doesnt match');
     res.render('login_page', templateVars);
     return;
   }
@@ -30,28 +34,26 @@ router.post('/logout', (req, res) => {
 
 //REGISTER
 router.post('/register', (req, res) => {
-  let templateVars = {user: undefined};
+  const templateVars = new TemplateVars();
   if (!req.body.email || !req.body.password) {
-    templateVars.message = 'Missing something';
+    templateVars.hasMsg('Missing something');
     res.render('registration_page', templateVars);
     return;
   }
-  const user = getUserByEmail(req.body.email, users);
-  if (user) {
-    templateVars.message = 'User already exists';
+
+  const existingUser = getUserByEmail(req.body.email, users);
+  if (existingUser) {
+    templateVars.hasMsg('User already exists');
     res.render('registration_page', templateVars);
     return;
   }
+
   let paid = (req.body.paid === 'on' ? true : false);
-  const newUser = {
-    id: generateRandomString(4),
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10),
-    paid: paid
-  };
-  users[newUser.id] = newUser;
-  req.session.user_id = newUser.id;
+  const { email, password } = req.body;
+  const user = new UserObj(email, password, paid);
+  users[user.id] = user;
+  req.session.user_id = user.id;
   res.redirect('/urls');
 });
 
-module.exports = router
+module.exports = router;

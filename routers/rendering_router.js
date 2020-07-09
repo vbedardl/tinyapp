@@ -1,49 +1,40 @@
-const express = require('express')
-const router = express.Router()
-const { users, urlDatabase } = require('../database')
-const { urlsForUser } = require('../helpers');
+const express = require('express');
+const router = express.Router();
+const { users, urlDatabase } = require('../database');
+const TemplateVars = require('../Schema/TemplateVars');
 
 //RENDER PAGES
 router.get('/', (req, res) => {
-  if (!req.session.user_id) {
-    res.redirect('/login');
-    return;
-  }
-  res.redirect('/urls');
+  !req.session.user_id ?
+    res.redirect('/login') :
+    res.redirect('/urls');
 });
 
 router.get('/urls', (req, res) => {
-  let templateVars = { urls: undefined, user: undefined, msg: undefined};
+  const templateVars = new TemplateVars();
   if (req.session.user_id) {
-    templateVars.urls = urlsForUser(req.session.user_id);
-    templateVars.user = users[req.session.user_id];
+    templateVars.hasUserID(req.session.user_id);
   }
   if (req.session.msg) {
-    templateVars.msg = req.session.msg;
+    templateVars.hasMsg(req.session.msg);
     req.session.msg = null;
   }
   res.render("urls_index", templateVars);
 });
 
 router.get("/urls/new", (req, res) => {
-  if (!req.session.user_id) {
-    res.redirect('/login');
-    return;
-  }
-  let templateVars = { user: users[req.session.user_id]};
-  res.render("urls_new", templateVars);
+  !req.session.user_id ?
+    res.redirect('/login') :
+    res.render("urls_new", { user: users[req.session.user_id]});
 });
 
 router.get('/urls/:shortURL', (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-    const userUrls = urlsForUser(req.session.user_id);
-    let templateVars = {
-      shortURL: req.params.shortURL,
-      longURL: urlDatabase[req.params.shortURL].longURL,
-      user: users[req.session.user_id],
-      userUrls: userUrls,
-      fullPath: req.protocol + '://' + req.get('host'),
-    };
+  const templateVars = new TemplateVars();
+  const { shortURL } = req.params;
+  if (urlDatabase[shortURL]) {
+    templateVars.hasUserID(req.session.user_id);
+    templateVars.hasShortURL(shortURL);
+    templateVars.fullPath = req.protocol + '://' + req.get('host');
     res.render("urls_show", templateVars);
   } else {
     req.session.msg = 'This tiny URL does not exist';
@@ -52,38 +43,35 @@ router.get('/urls/:shortURL', (req, res) => {
 });
 
 router.get('/analytics', (req, res) => {
-  let userUrls = urlsForUser(req.session.user_id);
-  let mobileCount = Object.keys(userUrls).map((url) => userUrls[url].visits.mobile).reduce((a, b) => a + b);
-  let desktopCount = Object.keys(userUrls).map((url) => userUrls[url].visits.desktop).reduce((a, b) => a + b);
-  let templateVars = {
-    user: users[req.session.user_id],
-    userUrls: urlsForUser(req.session.user_id),
-    mobileCount,
-    desktopCount,
-    url: undefined
-  };
+  const templateVars = new TemplateVars();
+  templateVars.hasUserID(req.session.user_id);
+  templateVars.clickCount(true);
   res.render("analytics", templateVars);
 });
 
 router.post('/analytics', (req, res) => {
-  let templateVars = {
-    mobileCount: urlDatabase[req.body.shortURL].visits.mobile,
-    desktopCount: urlDatabase[req.body.shortURL].visits.desktop,
-    user: users[req.session.user_id],
-    url: urlDatabase[req.body.shortURL]
-  };
+  const templateVars = new TemplateVars();
+  templateVars.hasShortURL(req.body.shortURL);
+  templateVars.hasUserID(req.session.user_id);
+  templateVars.clickCount(false);
   res.render('analytics', templateVars);
 });
 
 
 router.get('/login', (req, res) => {
-  let templateVars = { user: users[req.session.user_id], message: undefined};
+  const templateVars = new TemplateVars();
+  templateVars.hasUserID(req.session.user_id);
+  if (req.session.msg) {
+    templateVars.hasMsg(req.session.msg);
+    req.session.msg = null;
+  }
   res.render('login_page', templateVars);
 });
 
 router.get('/register', (req, res) => {
-  let templateVars = { user: users[req.session.user_id], message: undefined};
+  const templateVars = new TemplateVars();
+  templateVars.hasUserID(req.session.user_id);
   res.render('registration_page', templateVars);
 });
 
-module.exports = router
+module.exports = router;

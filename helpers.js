@@ -1,4 +1,4 @@
-const { urlDatabase} = require('./database')
+const { urlDatabase} = require('./database');
 
 const getUserByEmail = function(email, database) {
   const user = Object.keys(database).filter(user => database[user].email === email);

@@ -27,10 +27,10 @@
         </tr>
       </thead>
       <tbody>
-        <% for(let url in urls) { %>
+        <% for(let url in userUrls) { %>
           <tr>
             <td><%= url %></td>
-            <td><%= urls[url].longURL %></td>
+            <td><%= userUrls[url].longURL %></td>
             <td>
               <form method="GET" action="/urls/<%= url %>">
                 <button type="submit" class="btn btn-outline-primary">
@@ -45,9 +45,9 @@
                 </button>
               </form>
             </td>
-            <td><%= urls[url].createdAt %></td>
-            <td><%= urls[url].visits.mobile + urls[url].visits.desktop %></td>
-            <td><%= Object.keys(urls[url].uniqueVisitors).length %></td>
+            <td><%= userUrls[url].createdAt %></td>
+            <td><%= userUrls[url].visits.mobile + userUrls[url].visits.desktop %></td>
+            <td><%= Object.keys(userUrls[url].uniqueVisitors).length %></td>
           </tr>
         <% } %>
       </tbody>
