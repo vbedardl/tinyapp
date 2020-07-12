@@ -5,6 +5,7 @@ const { generateRandomString, urlsForUser } = require('../helpers');
 const UrlObject = require('../Schema/Url');
 const TemplateVars = require('../Schema/TemplateVars');
 
+
 //GET LIST OF URLS
 router.get('/', (req, res) => {
   const templateVars = new TemplateVars();
@@ -15,7 +16,7 @@ router.get('/', (req, res) => {
     templateVars.hasMessage(req.session.msg);
     req.session.msg = null;
   }
-  res.render("urls_index", templateVars);
+  res.render("new_urls_index", templateVars);
 });
 
 //DISPLAY THE FORM TO CREATE A NEW URL
@@ -32,7 +33,7 @@ router.post("/", (req, res) => {
     req.body.customURL ?
       shortURL = req.body.customURL :
       shortURL = generateRandomString(6);
-    urlDatabase[shortURL] = new UrlObject(req.body.longURL, req.session.user_id);
+    urlDatabase[shortURL] = new UrlObject(req.body.longURL, req.session.user_id, shortURL);
     res.redirect(`/urls/${shortURL}`);
   } else {
     req.session.msg = 'You need to be logged in to do this';
@@ -47,8 +48,25 @@ router.get('/:shortURL', (req, res) => {
   if (urlDatabase[shortURL]) {
     templateVars.hasUserID(req.session.user_id);
     templateVars.hasShortURL(shortURL);
+    templateVars.clickCount(false);
     templateVars.fullPath = req.protocol + '://' + req.get('host');
-    res.render("urls_show", templateVars);
+    console.log(urlDatabase[shortURL])
+    res.render("new_url_show", templateVars);
+  } else {
+    req.session.msg = 'This tiny URL does not exist';
+    res.redirect('/');
+  }
+});
+
+router.get('/edit/:shortURL', (req, res) => {
+  const templateVars = new TemplateVars();
+  const { shortURL } = req.params;
+  if (urlDatabase[shortURL]) {
+    templateVars.hasUserID(req.session.user_id);
+    templateVars.hasShortURL(shortURL);
+    templateVars.clickCount(false);
+    templateVars.fullPath = req.protocol + '://' + req.get('host');
+    res.render("new_edit_urls", templateVars);
   } else {
     req.session.msg = 'This tiny URL does not exist';
     res.redirect('/');
@@ -72,9 +90,12 @@ router.delete('/:shortURL', (req, res) => {
 router.put('/:shortURL', (req, res) => {
   if (req.session.user_id) {
     const userUrls = urlsForUser(req.session.user_id);
-    userUrls[req.params.shortURL] ?
-      urlDatabase[req.params.shortURL].longURL = req.body.newLongUrl :
+    if(userUrls[req.params.shortURL]) {
+      urlDatabase[req.params.shortURL].u = req.body.newLongUrl 
+      urlDatabase[req.params.shortURL].urlTitle = req.body.urlTitle 
+    }else{
       req.session.msg = `You can't update a url that is not yours`;
+    }
   } else {
     req.session.msg = `You can't update a url if you are not logged in`;
   }

@@ -73,10 +73,11 @@ router.post('/register', (req, res) => {
   }
 
   let paid = (req.body.paid === 'on' ? true : false);
-  const { email, password } = req.body;
-  const user = new UserObj(email, password, paid);
+  const { email, password, userName } = req.body;
+  const user = new UserObj(email, password, userName, paid);
   users[user.id] = user;
   req.session.user_id = user.id;
+  console.log(users)
   res.redirect('/urls');
 });
 

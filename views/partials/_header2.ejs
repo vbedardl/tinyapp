@@ -6,26 +6,16 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/urls">Why TinyUrl?</a>
-        <a class="nav-item nav-link" href="/urls">Features</a>
-        <a class="nav-item nav-link" href="/urls">Pricing</a>
-        <% if(user) { %>
-          <a class="nav-item nav-link" href="/urls"> URLs</a>
-          <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-          <% if(user.paid) {%>
-          <a class="nav-item nav-link" href="/analytics">Analytics</a>
-          <%}%>
-        <% } %>
+        <a class="nav-item nav-link" href="/urls">All Links</a>
+        <a class="nav-item nav-link" href="/user/<%= user %>">Profile Setting</a>
+        <a class="nav-item nav-link" href="/urls">Account Setting</a>
       </div>
     </div>
       <% if(user) {%>
         <form method="POST" action="/logout">
-          <p class="navbar-brand"><%= user.email %></p>
+          <p class="navbar-brand">Hi <%= user.name %> !</p>
           <button type="submit" class="btn btn-primary">Logout</button>
         </form>
-      <% }else {%>
-        <a class="text-white mr-3" href="/register">Register</a>
-        <a class="text-white mr-3" href="/login">Login</a>
       <% } %>
   </nav>
 </header>

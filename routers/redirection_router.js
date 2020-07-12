@@ -3,9 +3,13 @@ const router = express.Router();
 const { urlDatabase } = require('../database');
 const { generateRandomString } = require('../helpers');
 
+const findCurrentUrl = function(shortU){
+  const urlObject = Object.keys(urlDatabase).filter(elm => urlDatabase[elm].u === shortU)
+  return urlDatabase[urlObject[0]]
+}
 //REDIRECT TO LONG URL -> Create the redirection of the short URL to the long URL and collect data
 router.get("/u/:shortURL", (req, res) => {
-  const currentURL = urlDatabase[req.params.shortURL];
+  const currentURL = findCurrentUrl(req.params.shortURL);
   if (currentURL) {
     const { visits, referal, uniqueVisitors, longURL } = currentURL;
     const { referer } = req.headers;

@@ -5,12 +5,12 @@ const registrationRouter = require('./routers/registration_routers');
 const urlRouter = require('./routers/url_router');
 const analyticsRouter = require('./routers/analytics_router');
 const redirectionRouter = require('./routers/redirection_router');
+const googleRouter = require('./routers/googleOAuth')
+const userRouter = require('./routers/user_router')
 
 const express = require('express');
 let methodOverride = require('method-override');
-
-const passport = require('passport');  //GOOGLEAUTH
-require('./passport-setup')           //GOOGLEAUTH
+const TemplateVars = require('./Schema/TemplateVars');
 
 const app = express();
 const PORT = 3001;
@@ -23,42 +23,21 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }));
 
-const isLoggedIn = (req, res, next) => {
-  if(req.user){
-    next()
-  }else{
-    res.sendStatus(401)
-  }
-}
-
-app.use(passport.initialize())      //GOOGLEAUTH
-app.use(passport.session())         //GOOGLEAUTH
-
 app.set('view engine', 'ejs');
+
 
 app.use('/', registrationRouter);
 app.use('/urls', urlRouter);
 app.use('/analytics', analyticsRouter);
 app.use('/', redirectionRouter);
+app.use('/', googleRouter)
+app.use('/', userRouter)
 
 
-//GOOGLEAUTH
-app.get('/failed', (req, res) => res.send('You failed to log in'))
-app.get('/good', isLoggedIn, (req, res) => res.send(`Welcome mr ${req.user.profile}`))
 
-app.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-app.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/failed' }),
-  function(req, res) {
-    res.redirect('/good');
-  });
-  //GOOGLEAUTH
-
-  app.get('/*', (req, res) => {
-    res.render('404', {user:null})
-  })
+  // app.get('/*', (req, res) => {
+  //   res.render('404', {user:null})
+  // })
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);

@@ -9,51 +9,38 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <%- include('partials/_header') %>
+  <%- include('partials/_header2') %>
 
   <% if(user) { %>
   <main style="margin: 1em;">
-    <h3>My URLs</h3>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Short URL</th>
-          <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
-          <th scope="col">Created at</th>
-          <th scope="col">Visits</th>
-          <th scope="col">Unique Visitors</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="col-xl-3 col-lg-6" >
+      <span class="col-2"><%= Object.keys(userUrls).length %> Links</span>
+      <span class="col-2 offset-6">Clicks all time</span>      
+    </div>
+
         <% for(let url in userUrls) { %>
-          <tr>
-            <td><%= url %></td>
-            <td><%= userUrls[url].longURL %></td>
-            <td>
-              <form method="GET" action="/urls/<%= url %>">
-                <button type="submit" class="btn btn-outline-primary">
-                  Edit
-                </button>
-              </form>
-            </td>
-            <td>
-              <form method="POST" action="/urls/<%= url %>?_method=DELETE">
-                <button type="submit" class="btn btn-outline-danger">
-                  Delete
-                </button>
-              </form>
-            </td>
-            <td><%= userUrls[url].createdAt %></td>
-            <td><%= userUrls[url].visits.mobile + userUrls[url].visits.desktop %></td>
-            <td><%= Object.keys(userUrls[url].uniqueVisitors).length %></td>
-          </tr>
-        <% } %>
-      </tbody>
-    </table>
-    <form method="GET" action="/urls/new">
-      <button type="submit" class="btn btn-outline-primary">
+          <form method="GET" action="/urls/<%= url %>">
+
+          <div class="col-xl-3 col-lg-6 mt-3 pt-3" style="border-top:1px solid #d3d4d7; cursor:pointer" onclick="javascript:this.parentNode.submit();">
+            <div class="">
+              <div class="">
+                <div class="row">
+                <div class="col-10">
+                  <h6 class="text-uppercase text-muted"><%= userUrls[url].createdAt.toDateString() %></h6>
+                  <h4><%= userUrls[url].longURL %></h4>
+                  <h5 class="text-warning"><%= userUrls[url].u %></h5>
+                </div>
+                <div class="col-2 row align-items-end mb-2">
+                  <h5><%= userUrls[url].visits.mobile + userUrls[url].visits.desktop %> <i class="fa fa-bar-chart" aria-hidden="true"></i></h5>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+      </form>
+          <% } %>
+    <form method="GET" action="/urls/new" class="row justify-content-center m-5">
+      <button type="submit" class="btn btn-outline-primary ">
         Create a New Short Link
       </button>
     </form>  </main>
@@ -67,14 +54,12 @@
       <%= message %>
     </div>
   <%}%>
-  <%- include('partials/urls_item') %>
 
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <script>
-    console.log('test:',Document)
   </script>
 </body>
 </html>
