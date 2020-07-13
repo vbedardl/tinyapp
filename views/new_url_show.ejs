@@ -11,7 +11,8 @@
   <% if(user){ %>
     <% if(userUrls[shortURL]) {%>
   <div class="card">
-      <div class="card-body">
+      <div class="card-body" style="display:flex;justify-content: space-between;">
+        <div>
         <h6><span class="text-muted">Created at: <%= userUrls[shortURL].createdAt.toDateString() %> </span>| <span class="text-primary"><%= user.email %></span></h6>
         <h2 class="card-title"><%= url.urlTitle %></h2>
         <h5 class="card-title text-muted"><%= longURL %></h5>
@@ -23,7 +24,12 @@
               Edit
             </button>
           </form>
+        </div> 
         </div>
+        <div>
+          <% if(userUrls[shortURL].metaData) {%>
+            <img width="30px"  style="border-radius:5px;" src="<%= userUrls[shortURL].metaData.site.favicon %>">
+            <%}%>
       </div>
   </div>
   <div class="card">

@@ -13,6 +13,11 @@ class UrlObject {
     this.u = u,
     this.metaData = undefined
   } 
+  updateUrlTitle(){
+    if(this.metaData.title){
+      this.urlTitle = this.metaData.title
+    }
+  }
 }
 
 module.exports = UrlObject;
