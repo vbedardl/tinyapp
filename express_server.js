@@ -22,6 +22,11 @@ app.use(cookieSession({
   name:'session',
   keys: ['key1', 'key2']
 }));
+app.use(cookieSession({
+  name:'reset',
+  keys:['key1', 'key2'],
+  maxAge: 60*60*1000*1
+}))
 
 app.set('view engine', 'ejs');
 

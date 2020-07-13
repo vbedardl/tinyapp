@@ -6,6 +6,11 @@ const getUserByEmail = function(email, database) {
   return database[user];
 };
 
+const getUserByResetToken = function(token, database) {
+  const user = Object.keys(database).filter(user => database[user].resetToken === token);
+  return database[user];
+};
+
 //return a random string from 09-az-AZ characters given the amount of characters desired(num)
 const generateRandomString = function(num) {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -27,5 +32,6 @@ const urlsForUser = function(id) {
 module.exports = {
   getUserByEmail,
   generateRandomString,
-  urlsForUser
+  urlsForUser,
+  getUserByResetToken
 };
