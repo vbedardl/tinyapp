@@ -6,6 +6,7 @@ const getUserByEmail = function(email, database) {
   return database[user];
 };
 
+//return a user object from the user database given a reset token
 const getUserByResetToken = function(token, database) {
   const user = Object.keys(database).filter(user => database[user].resetToken === token);
   return database[user];
@@ -21,6 +22,11 @@ const generateRandomString = function(num) {
   return randomStr;
 };
 
+const findCurrentUrl = function(shortU){
+  const urlObject = Object.keys(urlDatabase).filter(elm => urlDatabase[elm].u === shortU)
+  return urlDatabase[urlObject[0]]
+}
+
 //return a filtered set of url objects given a user id
 const urlsForUser = function(id) {
   const tempDatabase = {};
@@ -33,5 +39,6 @@ module.exports = {
   getUserByEmail,
   generateRandomString,
   urlsForUser,
-  getUserByResetToken
+  getUserByResetToken,
+  findCurrentUrl
 };

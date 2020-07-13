@@ -1,16 +1,23 @@
+//Import MODULES
 const express = require('express');
 const router = express.Router();
-const { users } = require('../database');
-
-const UserObj = require('../Schema/User')
-const TemplateVars = require('../Schema/TemplateVars')
-const { getUserByEmail } = require('../helpers')
-
 const passport = require('passport');  //GOOGLEAUTH
 require('../passport-setup')           //GOOGLEAUTH
 
+//Import DATABASE
+const { users } = require('../database');
+
+//Import SCHEMAS
+const UserObj = require('../Schema/User')
+const TemplateVars = require('../Schema/TemplateVars')
+
+//Import HELPERS
+const { getUserByEmail } = require('../helpers')
+
+//Set Up Router
 router.use(passport.initialize())      //GOOGLEAUTH
 router.use(passport.session())         //GOOGLEAUTH
+
 
 const isLoggedIn = (req, res, next) => {
   if(req.user){
@@ -39,8 +46,7 @@ router.get('/good', isLoggedIn, (req, res) => {
     }
 })
 
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/failed' }),
@@ -48,5 +54,4 @@ router.get('/google/callback',
     res.redirect('/good')
   });
 
-  module.exports = router;
-  //GOOGLEAUTH
+module.exports = router;

@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { users, urlDatabase } = require('../database');
-const { generateRandomString, urlsForUser } = require('../helpers');
+const { users } = require('../database');
 const bcrypt = require('bcrypt')
-const UrlObject = require('../Schema/Url');
 const TemplateVars = require('../Schema/TemplateVars');
 
 router.get('/user/:id', (req, res) => {
@@ -13,6 +11,7 @@ router.get('/user/:id', (req, res) => {
   }
   res.render('edit_user', templateVars)
 })
+
 router.put('/user/:id', (req, res) => {
   const templateVars = new TemplateVars();
   if (bcrypt.compareSync(req.body.password, users[req.params.id].password) && req.session.user_id === req.params.id) {

@@ -58,6 +58,7 @@ router.get('/:shortURL', (req, res) => {
   }
 });
 
+//DISPLAY FORM TO EDIT URL
 router.get('/edit/:shortURL', (req, res) => {
   const templateVars = new TemplateVars();
   const { shortURL } = req.params;
@@ -77,9 +78,9 @@ router.get('/edit/:shortURL', (req, res) => {
 router.delete('/:shortURL', (req, res) => {
   if (req.session.user_id) {
     const userUrls = urlsForUser(req.session.user_id);
-    userUrls[req.params.shortURL] ?
+    userUrls[req.params.shortURL] && req.body.shortU === req.params.shortURL ?
       delete urlDatabase[req.params.shortURL] :
-      req.session.msg = `You can't delete a url that is not yours`;
+      req.session.msg = `The URL was not deleted`;
   } else {
     req.session.msg = `You can't delete a url if you are not logged in`;
   }
