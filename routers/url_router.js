@@ -4,7 +4,29 @@ const { users, urlDatabase } = require('../database');
 const { generateRandomString, urlsForUser } = require('../helpers');
 const UrlObject = require('../Schema/Url');
 const TemplateVars = require('../Schema/TemplateVars');
+const getUrlData = require('../URLAPI')
+const dotenv = require('dotenv')
+dotenv.config()
 
+
+const fetching = async function (req, res, next) {
+  const base64Credentials = Buffer.from(`vincent@pocketstrategist.ca:${process.env.URLMETA}`).toString('base64')
+  const options = {
+    url: `https://api.urlmeta.org/?url=${req.body.longURL}`,
+    headers: {
+      'Authorization': 'Basic ' + base64Credentials
+    }
+  }
+
+  const urldata = await getUrlData(options,(error, data) => {
+    if(error){
+      return undefined
+    }
+    return data
+  })
+  req.urlData = urldata
+  next()
+}
 
 //GET LIST OF URLS
 router.get('/', (req, res) => {
@@ -27,13 +49,16 @@ router.get("/new", (req, res) => {
 });
 
 //CREATE A NEW URL
-router.post("/", (req, res) => {
+router.post("/", fetching, (req, res) => {
   if (req.session.user_id) {
     let shortURL = undefined;
     req.body.customURL ?
       shortURL = req.body.customURL :
       shortURL = generateRandomString(6);
     urlDatabase[shortURL] = new UrlObject(req.body.longURL, req.session.user_id, shortURL);
+
+    urlDatabase[shortURL].metaData = req.urlData
+
     res.redirect(`/urls/${shortURL}`);
   } else {
     req.session.msg = 'You need to be logged in to do this';

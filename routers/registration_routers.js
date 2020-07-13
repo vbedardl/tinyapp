@@ -11,9 +11,13 @@ const TemplateVars = require('../Schema/TemplateVars');
 
 //GET HOMEPAGE
 router.get('/', (req, res) => {
-  !req.session.user_id ?
-    res.redirect('/login') :
+  if(req.session.user_id){
     res.redirect('/urls');
+  }else{
+    const templateVars = new TemplateVars()
+    res.render('homepage',templateVars)
+    // res.redirect('/login');
+  }
 });
 
 //DISPLAY LOGIN FORM
@@ -56,7 +60,7 @@ router.post('/login', (req, res) => {
 //LOGOUT A USER
 router.post('/logout', (req, res) => {
   req.session = null;
-  res.redirect('/urls');
+  res.redirect('/');
 });
 
 //CREATE A NEW USER

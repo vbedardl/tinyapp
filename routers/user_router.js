@@ -3,6 +3,7 @@ const router = express.Router();
 const { users } = require('../database');
 const bcrypt = require('bcrypt')
 const TemplateVars = require('../Schema/TemplateVars');
+const { getUserById } = require('../helpers');
 
 router.get('/user/:id', (req, res) => {
   const templateVars = new TemplateVars();
@@ -25,6 +26,39 @@ router.put('/user/:id', (req, res) => {
     templateVars.hasUserID(req.session.user_id);
     templateVars.hasMessage('Wrong Password. The information was not updated');
   }
+})
+
+router.get('/dashboard', (req, res) => {
+  const user = getUserById(req.session.user_id, users)
+  if(user.paid){
+    res.render('dashboard')
+  }else{
+    req.session.msg = 'Dashboard Features. Learn more'
+    res.redirect('/upgrade')
+  }
+})
+router.get('/campaign', (req, res) => {
+  const user = getUserById(req.session.user_id, users)
+  if(user.paid){
+    res.render('campaign')
+  }else{
+    req.session.msg = 'Campaign Features. Learn more'
+    res.redirect('/upgrade')
+  }
+})
+router.get('/upgrade', (req, res) => {
+  const templateVars = new TemplateVars();
+templateVars.hasUserID(req.session.user_id)
+templateVars.message = req.session.msg
+req.session.msg = null
+  res.render('upgrade_page', templateVars)
+})
+
+router.get('/account-settings', (req, res) => {
+  const templateVars = new TemplateVars();
+  templateVars.hasUserID(req.session.user_id)
+
+  res.render('account_settings', templateVars)
 })
 
 module.exports = router;
